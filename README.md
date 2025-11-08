@@ -1,8 +1,3 @@
-Sure ✅ — here’s a **single, copy-paste ready `README.md` file** for your **CivicPay Flask + MySQL project**, formatted cleanly for GitHub:
-
----
-
-```markdown
 # 🏙️ CivicPay — Citizen Payment Management System
 
 CivicPay is a **Flask + MySQL** web application that enables citizens to manage their municipal payments digitally.  
