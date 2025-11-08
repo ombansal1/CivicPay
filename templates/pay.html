@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 style="margin:0 0 8px 0;">Pay Bill</h2>
+<p class="muted" style="margin-top:0">{{ bill.bill_type|capitalize }} — {{ bill.property_type }} · {{ bill.address }}</p>
+
+<div class="card" style="max-width:560px">
+  <div class="row"><span>Amount</span><strong>₹{{ '%.0f'|format(bill.amount or 0) }}</strong></div>
+  <div class="row"><span>Due Date</span><span>{{ bill.due_date.strftime('%d/%m/%Y') if bill.due_date else '—' }}</span></div>
+
+  <form method="post" style="margin-top:14px">
+    <label class="muted" for="method_id">Payment Method</label>
+    <select id="method_id" name="method_id" class="input" required>
+      <option value="" disabled selected>Select a method</option>
+      {% for m in methods %}
+        <option value="{{ m.method_id }}">{{ m.method_name }}</option>
+      {% endfor %}
+    </select>
+    <div style="height:12px"></div>
+    <button class="btn primary" type="submit" style="width:100%">Pay Now</button>
+  </form>
+</div>
+
+{% endblock %}

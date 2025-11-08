@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card" style="max-width:560px;text-align:center;margin:0 auto">
+  <div style="font-size:2.3rem">✅</div>
+  <h2 style="margin:8px 0 6px 0;">Payment Successful</h2>
+  <p class="muted" style="margin-top:0">Thanks! Your payment has been recorded.</p>
+
+  <div class="card" style="margin-top:12px">
+    <div class="row"><span>Bill</span><strong>{{ info.bill_type|capitalize }}</strong></div>
+    <div class="row"><span>Amount</span><strong>₹{{ '%.0f'|format(info.amount or 0) }}</strong></div>
+    <div class="row"><span>Paid On</span><span>{{ info.payment_date.strftime('%d/%m/%Y') if info.payment_date else '—' }}</span></div>
+    <div class="row"><span>Method</span><span>{{ info.method_name or '—' }}</span></div>
+    <div class="row"><span>Property</span><span>{{ info.property_type }} — {{ info.address }}</span></div>
+  </div>
+
+  <div style="height:12px"></div>
+  <a class="btn primary" href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+</div>
+
+{% endblock %}

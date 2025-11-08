@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 style="margin:0 0 8px 0;">Fastag Management</h2>
+<p class="muted" style="margin-top:0">View and recharge your Fastag accounts</p>
+
+<div class="card" style="margin-bottom:14px">
+  <div class="row"><span>Total Fastag Balance</span><strong>₹{{ '%.0f'|format(total or 0) }}</strong></div>
+  <div class="row"><span>Tags</span><span>{{ count or 0 }}</span></div>
+</div>
+
+<div class="grid">
+  {% for t in tags %}
+  <div class="card">
+    <div class="title" style="margin-bottom:6px">
+      <strong>Fastag #{{ t.fastag_id }}</strong>
+      <span class="pill">Balance</span>
+    </div>
+    <div class="row"><span>Vehicle</span><span>{{ t.vehicle_number }}</span></div>
+    <div class="row"><span>Current Balance</span><strong>₹{{ '%.0f'|format(t.balance or 0) }}</strong></div>
+
+    <form method="post" style="margin-top:12px">
+      <input type="hidden" name="fastag_id" value="{{ t.fastag_id }}">
+      <label class="muted" for="amount-{{ t.fastag_id }}">Top Up Amount</label>
+      <input id="amount-{{ t.fastag_id }}" class="input" type="number" step="1" min="1" name="amount" placeholder="Enter amount" required>
+      <div style="height:10px"></div>
+      <button class="btn primary" type="submit" style="width:100%">Top Up</button>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

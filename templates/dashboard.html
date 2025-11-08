@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Welcome back, {{ username }}!</h2>
+<p class="muted">Manage your municipal bills & Fastag payments</p>
+
+<!-- KPIs -->
+<div class="grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin:14px 0 10px 0">
+  <div class="card">
+    <h3>Total Outstanding</h3>
+    <div style="font-size:1.6rem;font-weight:700">₹{{ '%.0f'|format(summary.total_outstanding or 0) }}</div>
+  </div>
+  <div class="card">
+    <h3>Pending Bills</h3>
+    <div style="font-size:1.6rem;font-weight:700">{{ summary.pending_count or 0 }}</div>
+  </div>
+  <div class="card">
+    <h3>Next Due Date</h3>
+    <div style="font-size:1.2rem;font-weight:600">
+      {% if summary.next_due %}
+        {{ summary.next_due.strftime('%d/%m/%Y') }}
+      {% else %}
+        <span class="muted">No upcoming bills</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" data-tab="pending">Pending Bills</button>
+  <button class="tab" data-tab="paid">Paid Bills</button>
+  <button class="tab" data-tab="property">By Property</button>
+</div>
+
+<!-- Pending (grouped by property) -->
+<section id="tab-pending" class="card">
+  {% if grouped_pending and grouped_pending|length > 0 %}
+    {% for key, bills in grouped_pending.items() %}
+      {% set _pid = key[0] %}
+      {% set label = key[1] %}
+      <div style="margin:6px 0 10px 0">
+        <h3>🏠 {{ label }}</h3>
+      </div>
+      <div class="grid">
+        {% for b in bills %}
+          <div class="card" style="border:1px solid var(--line)">
+            <div class="row">
+              <div style="font-weight:700;text-transform:capitalize">{{ b.bill_type }}</div>
+              <span class="pill">Pending</span>
+            </div>
+            <div class="row"><span>Amount</span><strong>₹{{ '%.0f'|format(b.amount or 0) }}</strong></div>
+            {% if b.units_used is not none %}
+              <div class="row"><span>Units Used</span><span>{{ b.units_used }}</span></div>
+            {% endif %}
+            <div class="row"><span>Due Date</span><span>{{ b.due_date.strftime('%d/%m/%Y') if b.due_date else '—' }}</span></div>
+            <a class="btn primary" href="{{ url_for('pay_bill', bill_id=b.bill_id) }}" style="width:100%;text-align:center;margin-top:10px">
+              Pay Now
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+      {% if not loop.last %}
+        <div style="height:10px"></div><hr style="border:none;border-top:1px solid var(--line)"><div style="height:10px"></div>
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    <div class="muted">No pending bills 🎉</div>
+  {% endif %}
+</section>
+
+<!-- Paid (grouped by property) -->
+<section id="tab-paid" class="card" style="display:none">
+  {% if grouped_paid and grouped_paid|length > 0 %}
+    {% for key, bills in grouped_paid.items() %}
+      {% set _pid = key[0] %}
+      {% set label = key[1] %}
+      <div style="margin:6px 0 10px 0">
+        <h3>🏠 {{ label }}</h3>
+      </div>
+      <div class="grid">
+        {% for b in bills %}
+          <div class="card" style="border:1px solid var(--line)">
+            <div class="row">
+              <div style="font-weight:700;text-transform:capitalize">{{ b.bill_type }}</div>
+              <span class="pill">Paid</span>
+            </div>
+            <div class="row"><span>Amount</span><strong>₹{{ '%.0f'|format(b.amount or 0) }}</strong></div>
+            <div class="row"><span>Paid On</span><span>{{ b.payment_date.strftime('%d/%m/%Y') if b.payment_date else '—' }}</span></div>
+            {% if b.due_date %}
+              <div class="row"><span>Bill Due (original)</span><span>{{ b.due_date.strftime('%d/%m/%Y') }}</span></div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+      {% if not loop.last %}
+        <div style="height:10px"></div><hr style="border:none;border-top:1px solid var(--line)"><div style="height:10px"></div>
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    <div class="muted">No bills in history yet.</div>
+  {% endif %}
+</section>
+
+<!-- By Property (unchanged) -->
+<section id="tab-property" class="card" style="display:none">
+  {% if by_property and by_property|length > 0 %}
+    <div class="grid">
+      {% for p in by_property %}
+        <div class="card" style="border:1px solid var(--line)">
+          <div style="font-weight:700;margin-bottom:6px">{{ p.property_type }} — {{ p.address }}</div>
+          <div class="row"><span>Pending Amount</span><strong>₹{{ '%.0f'|format(p.pending_amount or 0) }}</strong></div>
+          <div class="row"><span>Pending Bills</span><span>{{ p.pending_count or 0 }}</span></div>
+          <div class="row"><span>Paid Bills</span><span>{{ p.paid_count or 0 }}</span></div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="muted">No properties found.</div>
+  {% endif %}
+</section>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const sections = {
+    pending: document.getElementById('tab-pending'),
+    paid: document.getElementById('tab-paid'),
+    property: document.getElementById('tab-property')
+  };
+  tabs.forEach(t=>{
+    t.addEventListener('click', ()=>{
+      tabs.forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const key = t.dataset.tab;
+      Object.keys(sections).forEach(k=>sections[k].style.display = (k===key?'block':'none'));
+    });
+  });
+</script>
+
+{% endblock %}

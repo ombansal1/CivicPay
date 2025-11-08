@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 style="margin:0 0 8px 0;">Feedback</h2>
+<p class="muted" style="margin-top:0">Share your experience with CivicPay</p>
+
+<div class="card" style="max-width:680px">
+  <form method="post">
+    <div class="row">
+      <div style="flex:1">
+        <label class="muted" for="rating">Rating (1–5)</label>
+        <input id="rating" name="rating" class="input" type="number" min="1" max="5" required>
+      </div>
+    </div>
+    <div style="height:10px"></div>
+    <label class="muted" for="comment">Comment</label>
+    <textarea id="comment" name="comment" class="input" rows="4" placeholder="Tell us about your experience..."></textarea>
+    <div style="height:12px"></div>
+    <button class="btn primary" type="submit">Submit Feedback</button>
+  </form>
+</div>
+
+{% if history and history|length > 0 %}
+  <h3 class="section-title">Your Feedback History</h3>
+  <div class="grid">
+    {% for h in history %}
+    <div class="card">
+      <div class="row"><span>Rating</span><strong>{{ h.rating }}/5</strong></div>
+      <div class="row"><span>Date</span><span>{{ h.feedback_date.strftime('%d %b %Y') if h.feedback_date else '—' }}</span></div>
+      <p class="muted" style="margin-top:6px">{{ h.comment }}</p>
+    </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}
